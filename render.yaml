@@ -1,0 +1,14 @@
+services:
+  - type: web
+    name: spambae
+    env: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn app:app
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.9.7
+    plan: free
+    branch: main
+    numInstances: 1
+    healthCheckPath: /
+    autoDeploy: true
