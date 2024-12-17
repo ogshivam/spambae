@@ -70,27 +70,42 @@ SpamBae is a sophisticated SMS classification system that leverages machine lear
 ## 🏗 System Architecture
 
 ```mermaid
-%%{init: {'theme': 'base', 'themeVariables': { 'fontFamily': 'Arial', 'fontSize': '14px'}}}%%
+%%{init: {'theme': 'base', 'themeVariables': { 'fontFamily': 'Courier New', 'fontSize': '16px', 'fontWeight': 'bold', 'primaryColor': '#1e88e5', 'primaryTextColor': '#ffffff', 'primaryBorderColor': '#1565c0', 'lineColor': '#1565c0', 'textColor': '#212121'}}}%%
 graph TB
-    subgraph Frontend
+    subgraph Frontend[Frontend]
+        style Frontend fill:#e3f2fd,stroke:#1565c0,stroke-width:2px
         UI[User Interface]
         ThemeToggle[Theme Toggle]
         Feedback[Feedback System]
         History[Message History]
+        style UI fill:#bbdefb,stroke:#1565c0,stroke-width:2px
+        style ThemeToggle fill:#bbdefb,stroke:#1565c0,stroke-width:2px
+        style Feedback fill:#bbdefb,stroke:#1565c0,stroke-width:2px
+        style History fill:#bbdefb,stroke:#1565c0,stroke-width:2px
     end
 
-    subgraph Backend
+    subgraph Backend[Backend]
+        style Backend fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px
         API[Flask API Endpoints]
         Preprocessor[Text Preprocessor]
         HistoryManager[History Management]
+        style API fill:#c8e6c9,stroke:#2e7d32,stroke-width:2px
+        style Preprocessor fill:#c8e6c9,stroke:#2e7d32,stroke-width:2px
+        style HistoryManager fill:#c8e6c9,stroke:#2e7d32,stroke-width:2px
     end
 
-    subgraph MLPipeline
+    subgraph MLPipeline[ML Pipeline]
+        style MLPipeline fill:#fff3e0,stroke:#f57c00,stroke-width:2px
         Tokenization[Text Tokenization]
         StopWordRemoval[Stop Word Removal]
         Lemmatization[Lemmatization]
         Vectorization[TF-IDF Vectorization]
         Classifier[MultimodalNB Classifier]
+        style Tokenization fill:#ffe0b2,stroke:#f57c00,stroke-width:2px
+        style StopWordRemoval fill:#ffe0b2,stroke:#f57c00,stroke-width:2px
+        style Lemmatization fill:#ffe0b2,stroke:#f57c00,stroke-width:2px
+        style Vectorization fill:#ffe0b2,stroke:#f57c00,stroke-width:2px
+        style Classifier fill:#ffe0b2,stroke:#f57c00,stroke-width:2px
     end
 
     UI --> |User Input| API
@@ -106,21 +121,32 @@ graph TB
 ```
 
 ```mermaid
-%%{init: {'theme': 'base', 'themeVariables': { 'fontFamily': 'Arial', 'fontSize': '14px'}}}%%
+%%{init: {'theme': 'base', 'themeVariables': { 'fontFamily': 'Courier New', 'fontSize': '16px', 'fontWeight': 'bold', 'primaryColor': '#1e88e5', 'primaryTextColor': '#ffffff', 'primaryBorderColor': '#1565c0', 'lineColor': '#1565c0', 'textColor': '#212121'}}}%%
 flowchart LR
-    subgraph TextProcessing
+    subgraph TextProcessing[Text Processing]
+        style TextProcessing fill:#e3f2fd,stroke:#1565c0,stroke-width:2px
         RawText[Raw Text Input]
         Preprocessed[Preprocessed Text]
         TFIDFVector[TF-IDF Vector]
         Classification[Text Classification]
         ConfidenceScore[Confidence Score]
+        style RawText fill:#bbdefb,stroke:#1565c0,stroke-width:2px
+        style Preprocessed fill:#bbdefb,stroke:#1565c0,stroke-width:2px
+        style TFIDFVector fill:#bbdefb,stroke:#1565c0,stroke-width:2px
+        style Classification fill:#bbdefb,stroke:#1565c0,stroke-width:2px
+        style ConfidenceScore fill:#bbdefb,stroke:#1565c0,stroke-width:2px
     end
 
-    subgraph DataStorage
+    subgraph DataStorage[Data Storage]
+        style DataStorage fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px
         ModelFile[Trained Model File]
         ClassificationModel[MultimodalNB Classifier]
         MessageHistory[Message History Database]
         AnalyticsEngine[Analytics Dashboard]
+        style ModelFile fill:#c8e6c9,stroke:#2e7d32,stroke-width:2px
+        style ClassificationModel fill:#c8e6c9,stroke:#2e7d32,stroke-width:2px
+        style MessageHistory fill:#c8e6c9,stroke:#2e7d32,stroke-width:2px
+        style AnalyticsEngine fill:#c8e6c9,stroke:#2e7d32,stroke-width:2px
     end
 
     RawText --> Preprocessed
@@ -133,7 +159,7 @@ flowchart LR
 ```
 
 ```mermaid
-%%{init: {'theme': 'base', 'themeVariables': { 'fontFamily': 'Arial', 'fontSize': '14px'}}}%%
+%%{init: {'theme': 'base', 'themeVariables': { 'fontFamily': 'Courier New', 'fontSize': '16px', 'fontWeight': 'bold', 'primaryColor': '#1e88e5', 'primaryTextColor': '#ffffff', 'primaryBorderColor': '#1565c0', 'lineColor': '#1565c0', 'textColor': '#212121', 'actorBorder': '#1565c0', 'actorBackground': '#bbdefb', 'noteBorderColor': '#f57c00', 'noteBackground': '#fff3e0'}}}%%
 sequenceDiagram
     participant User
     participant Frontend
