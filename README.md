@@ -67,6 +67,113 @@ SpamBae is a sophisticated SMS classification system that leverages machine lear
   - Theme Persistence
   - Interactive Feedback System
 
+## 🏗 System Architecture
+
+```mermaid
+graph TB
+    subgraph Frontend
+        UI[User Interface]
+        TT[Theme Toggle]
+        FB[Feedback Buttons]
+        HIS[History Sidebar]
+    end
+
+    subgraph Backend
+        API[Flask API]
+        PP[Text Preprocessor]
+        ML[ML Model]
+        HIST[History Manager]
+    end
+
+    subgraph ML Pipeline
+        TOK[Tokenization]
+        STOP[Stop Words Removal]
+        LEM[Lemmatization]
+        VEC[TF-IDF Vectorization]
+        SVM[SVM Classifier]
+    end
+
+    %% Frontend Connections
+    UI --> |User Input| API
+    API --> |Classification Result| UI
+    UI --> TT
+    UI --> FB
+    UI --> HIS
+
+    %% Backend Flow
+    API --> PP
+    PP --> ML
+    ML --> API
+    API --> HIST
+    HIST --> HIS
+
+    %% ML Pipeline Flow
+    PP --> TOK
+    TOK --> STOP
+    STOP --> LEM
+    LEM --> VEC
+    VEC --> SVM
+    SVM --> |Prediction| ML
+
+    %% Styling
+    classDef frontend fill:#f9f,stroke:#333,stroke-width:2px
+    classDef backend fill:#bbf,stroke:#333,stroke-width:2px
+    classDef mlpipe fill:#bfb,stroke:#333,stroke-width:2px
+
+    class UI,TT,FB,HIS frontend
+    class API,PP,ML,HIST backend
+    class TOK,STOP,LEM,VEC,SVM mlpipe
+```
+
+```mermaid
+sequenceDiagram
+    participant U as User
+    participant F as Frontend
+    participant A as API
+    participant P as Preprocessor
+    participant M as ML Model
+    participant H as History
+
+    U->>F: Enter Message
+    F->>A: POST /classify
+    A->>P: Preprocess Text
+    P->>M: Vectorize & Classify
+    M-->>A: Prediction & Confidence
+    A->>H: Store Result
+    A-->>F: JSON Response
+    F-->>U: Display Result
+    U->>F: Give Feedback
+    F->>H: Store Feedback
+```
+
+```mermaid
+flowchart LR
+    subgraph Data Flow
+        direction LR
+        A[Raw Text] --> B[Preprocessed Text]
+        B --> C[Feature Vector]
+        C --> D[Classification]
+        D --> E[Confidence Score]
+    end
+
+    subgraph User Interface
+        direction TB
+        F[Input Box] --> G[Process Button]
+        G --> H[Result Display]
+        H --> I[Feedback System]
+    end
+
+    subgraph Storage
+        direction TB
+        J[Model File] --> K[Classification]
+        L[Message History] --> M[History Display]
+    end
+
+    style Data Flow fill:#f9f9f9,stroke:#333,stroke-width:2px
+    style User Interface fill:#f0f0f0,stroke:#333,stroke-width:2px
+    style Storage fill:#e0e0e0,stroke:#333,stroke-width:2px
+```
+
 ## 🚀 Quick Start
 
 ### Local Development
