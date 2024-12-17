@@ -70,108 +70,119 @@ SpamBae is a sophisticated SMS classification system that leverages machine lear
 ## 🏗 System Architecture
 
 ```mermaid
+%%{init: {'theme': 'dark', 'themeVariables': { 'fontFamily': 'arial', 'fontSize': '16px'}}}%%
 graph TB
-    subgraph Frontend
-        UI[User Interface]
-        TT[Theme Toggle]
-        FB[Feedback Buttons]
-        HIS[History Sidebar]
+    subgraph Frontend["🖥️ Frontend"]
+        style Frontend fill:#2D323E,stroke:#4A5568,stroke-width:2px
+        UI["📱 User Interface"]
+        TT["🌓 Theme Toggle"]
+        FB["📝 Feedback System"]
+        HIS["📊 History View"]
+        style UI fill:#4A5568,stroke:#718096,stroke-width:2px,color:#fff,font-weight:bold
+        style TT fill:#4A5568,stroke:#718096,stroke-width:2px,color:#fff,font-weight:bold
+        style FB fill:#4A5568,stroke:#718096,stroke-width:2px,color:#fff,font-weight:bold
+        style HIS fill:#4A5568,stroke:#718096,stroke-width:2px,color:#fff,font-weight:bold
     end
 
-    subgraph Backend
-        API[Flask API]
-        PP[Text Preprocessor]
-        ML[ML Model]
-        HIST[History Manager]
+    subgraph Backend["⚙️ Flask Backend"]
+        style Backend fill:#2C3E50,stroke:#34495E,stroke-width:2px
+        API["🔌 Flask API"]
+        PP["🔄 Text Preprocessor"]
+        ML["🤖 ML Pipeline"]
+        HIST["📚 History Manager"]
+        style API fill:#34495E,stroke:#4A6278,stroke-width:2px,color:#fff,font-weight:bold
+        style PP fill:#34495E,stroke:#4A6278,stroke-width:2px,color:#fff,font-weight:bold
+        style ML fill:#34495E,stroke:#4A6278,stroke-width:2px,color:#fff,font-weight:bold
+        style HIST fill:#34495E,stroke:#4A6278,stroke-width:2px,color:#fff,font-weight:bold
     end
 
-    subgraph ML Pipeline
-        TOK[Tokenization]
-        STOP[Stop Words Removal]
-        LEM[Lemmatization]
-        VEC[TF-IDF Vectorization]
-        SVM[SVM Classifier]
+    subgraph MLPipeline["🧠 ML Pipeline"]
+        style MLPipeline fill:#1A365D,stroke:#2C5282,stroke-width:2px
+        TOK["📝 Tokenization"]
+        STOP["🚫 Stop Words"]
+        LEM["📚 Lemmatization"]
+        VEC["📊 TF-IDF"]
+        SVM["🎯 SVM Model"]
+        style TOK fill:#2C5282,stroke:#4299E1,stroke-width:2px,color:#fff,font-weight:bold
+        style STOP fill:#2C5282,stroke:#4299E1,stroke-width:2px,color:#fff,font-weight:bold
+        style LEM fill:#2C5282,stroke:#4299E1,stroke-width:2px,color:#fff,font-weight:bold
+        style VEC fill:#2C5282,stroke:#4299E1,stroke-width:2px,color:#fff,font-weight:bold
+        style SVM fill:#2C5282,stroke:#4299E1,stroke-width:2px,color:#fff,font-weight:bold
     end
 
-    %% Frontend Connections
-    UI --> |User Input| API
-    API --> |Classification Result| UI
-    UI --> TT
-    UI --> FB
-    UI --> HIS
-
-    %% Backend Flow
-    API --> PP
-    PP --> ML
+    %% Connections with better styling
+    UI -->|"User Input"| API
+    API -->|"Response"| UI
+    UI --- TT & FB & HIS
+    API --> PP --> ML
     ML --> API
-    API --> HIST
-    HIST --> HIS
+    API --> HIST --> HIS
+    PP --> TOK --> STOP --> LEM --> VEC --> SVM
+    SVM -->|"Prediction"| ML
 
-    %% ML Pipeline Flow
-    PP --> TOK
-    TOK --> STOP
-    STOP --> LEM
-    LEM --> VEC
-    VEC --> SVM
-    SVM --> |Prediction| ML
-
-    %% Styling
-    classDef frontend fill:#f9f,stroke:#333,stroke-width:2px
-    classDef backend fill:#bbf,stroke:#333,stroke-width:2px
-    classDef mlpipe fill:#bfb,stroke:#333,stroke-width:2px
-
-    class UI,TT,FB,HIS frontend
-    class API,PP,ML,HIST backend
-    class TOK,STOP,LEM,VEC,SVM mlpipe
+    %% Global styles
+    classDef default color:#fff,font-family:arial,font-size:14px
 ```
 
 ```mermaid
+%%{init: {'theme': 'dark', 'themeVariables': { 'fontFamily': 'arial', 'fontSize': '16px'}}}%%
 sequenceDiagram
-    participant U as User
-    participant F as Frontend
-    participant A as API
-    participant P as Preprocessor
-    participant M as ML Model
-    participant H as History
+    participant U as 👤 User
+    participant F as 🖥️ Frontend
+    participant A as 🔌 API
+    participant P as 🔄 Preprocessor
+    participant M as 🤖 ML Model
+    participant H as 📚 History
 
-    U->>F: Enter Message
-    F->>A: POST /classify
-    A->>P: Preprocess Text
-    P->>M: Vectorize & Classify
-    M-->>A: Prediction & Confidence
-    A->>H: Store Result
-    A-->>F: JSON Response
-    F-->>U: Display Result
-    U->>F: Give Feedback
-    F->>H: Store Feedback
+    style U fill:#4A5568,stroke:#718096,stroke-width:2px,color:#fff,font-weight:bold
+    style F fill:#4A5568,stroke:#718096,stroke-width:2px,color:#fff,font-weight:bold
+    style A fill:#34495E,stroke:#4A6278,stroke-width:2px,color:#fff,font-weight:bold
+    style P fill:#2C5282,stroke:#4299E1,stroke-width:2px,color:#fff,font-weight:bold
+    style M fill:#2C5282,stroke:#4299E1,stroke-width:2px,color:#fff,font-weight:bold
+    style H fill:#34495E,stroke:#4A6278,stroke-width:2px,color:#fff,font-weight:bold
+
+    U->>+F: Enter Message
+    F->>+A: POST /classify
+    A->>+P: Preprocess Text
+    P->>+M: Vectorize & Classify
+    M-->>-P: Prediction & Confidence
+    P-->>-A: Processed Result
+    A->>H: Store in History
+    A-->>-F: JSON Response
+    F-->>-U: Display Result
+    Note over U,H: All communications secured with proper error handling
 ```
 
 ```mermaid
+%%{init: {'theme': 'dark', 'themeVariables': { 'fontFamily': 'arial', 'fontSize': '16px'}}}%%
 flowchart LR
-    subgraph Data Flow
+    subgraph Processing["🔄 Text Processing"]
         direction LR
-        A[Raw Text] --> B[Preprocessed Text]
-        B --> C[Feature Vector]
-        C --> D[Classification]
-        D --> E[Confidence Score]
+        A["📝 Raw Text"] --> B["🔍 Preprocessed"]
+        B --> C["📊 TF-IDF Vector"]
+        C --> D["🎯 Classification"]
+        D --> E["📈 Confidence Score"]
+        style A fill:#4A5568,stroke:#718096,stroke-width:2px,color:#fff,font-weight:bold
+        style B fill:#4A5568,stroke:#718096,stroke-width:2px,color:#fff,font-weight:bold
+        style C fill:#34495E,stroke:#4A6278,stroke-width:2px,color:#fff,font-weight:bold
+        style D fill:#2C5282,stroke:#4299E1,stroke-width:2px,color:#fff,font-weight:bold
+        style E fill:#2C5282,stroke:#4299E1,stroke-width:2px,color:#fff,font-weight:bold
     end
 
-    subgraph User Interface
+    subgraph Storage["💾 Data Storage"]
         direction TB
-        F[Input Box] --> G[Process Button]
-        G --> H[Result Display]
-        H --> I[Feedback System]
+        F["📁 Model File"] --> G["🤖 Classifier"]
+        H["📚 Message History"] --> I["📊 Analytics"]
+        style F fill:#1A365D,stroke:#2C5282,stroke-width:2px,color:#fff,font-weight:bold
+        style G fill:#1A365D,stroke:#2C5282,stroke-width:2px,color:#fff,font-weight:bold
+        style H fill:#1A365D,stroke:#2C5282,stroke-width:2px,color:#fff,font-weight:bold
+        style I fill:#1A365D,stroke:#2C5282,stroke-width:2px,color:#fff,font-weight:bold
     end
 
-    subgraph Storage
-        direction TB
-        J[Model File] --> K[Classification]
-        L[Message History] --> M[History Display]
-    end
-
-    style Data Flow fill:#f9f9f9,stroke:#333,stroke-width:2px
-    style User Interface fill:#f0f0f0,stroke:#333,stroke-width:2px
-    style Storage fill:#e0e0e0,stroke:#333,stroke-width:2px
+    %% Global styles
+    classDef default color:#fff,font-family:arial,font-size:14px,font-weight:bold
+    style Processing fill:#2D323E,stroke:#4A5568,stroke-width:2px
+    style Storage fill:#2C3E50,stroke:#34495E,stroke-width:2px
 ```
 
 ## 🚀 Quick Start
