@@ -70,119 +70,87 @@ SpamBae is a sophisticated SMS classification system that leverages machine lear
 ## 🏗 System Architecture
 
 ```mermaid
-%%{init: {'theme': 'dark', 'themeVariables': { 'fontFamily': 'arial', 'fontSize': '16px'}}}%%
+%%{init: {'theme': 'base', 'themeVariables': { 'fontFamily': 'Arial', 'fontSize': '14px'}}}%%
 graph TB
-    subgraph Frontend["🖥️ Frontend"]
-        style Frontend fill:#2D323E,stroke:#4A5568,stroke-width:2px
-        UI["📱 User Interface"]
-        TT["🌓 Theme Toggle"]
-        FB["📝 Feedback System"]
-        HIS["📊 History View"]
-        style UI fill:#4A5568,stroke:#718096,stroke-width:2px,color:#fff,font-weight:bold
-        style TT fill:#4A5568,stroke:#718096,stroke-width:2px,color:#fff,font-weight:bold
-        style FB fill:#4A5568,stroke:#718096,stroke-width:2px,color:#fff,font-weight:bold
-        style HIS fill:#4A5568,stroke:#718096,stroke-width:2px,color:#fff,font-weight:bold
+    subgraph Frontend
+        UI[User Interface]
+        ThemeToggle[Theme Toggle]
+        Feedback[Feedback System]
+        History[Message History]
     end
 
-    subgraph Backend["⚙️ Flask Backend"]
-        style Backend fill:#2C3E50,stroke:#34495E,stroke-width:2px
-        API["🔌 Flask API"]
-        PP["🔄 Text Preprocessor"]
-        ML["🤖 ML Pipeline"]
-        HIST["📚 History Manager"]
-        style API fill:#34495E,stroke:#4A6278,stroke-width:2px,color:#fff,font-weight:bold
-        style PP fill:#34495E,stroke:#4A6278,stroke-width:2px,color:#fff,font-weight:bold
-        style ML fill:#34495E,stroke:#4A6278,stroke-width:2px,color:#fff,font-weight:bold
-        style HIST fill:#34495E,stroke:#4A6278,stroke-width:2px,color:#fff,font-weight:bold
+    subgraph Backend
+        API[Flask API Endpoints]
+        Preprocessor[Text Preprocessor]
+        HistoryManager[History Management]
     end
 
-    subgraph MLPipeline["🧠 ML Pipeline"]
-        style MLPipeline fill:#1A365D,stroke:#2C5282,stroke-width:2px
-        TOK["📝 Tokenization"]
-        STOP["🚫 Stop Words"]
-        LEM["📚 Lemmatization"]
-        VEC["📊 TF-IDF"]
-        SVM["🎯 SVM Model"]
-        style TOK fill:#2C5282,stroke:#4299E1,stroke-width:2px,color:#fff,font-weight:bold
-        style STOP fill:#2C5282,stroke:#4299E1,stroke-width:2px,color:#fff,font-weight:bold
-        style LEM fill:#2C5282,stroke:#4299E1,stroke-width:2px,color:#fff,font-weight:bold
-        style VEC fill:#2C5282,stroke:#4299E1,stroke-width:2px,color:#fff,font-weight:bold
-        style SVM fill:#2C5282,stroke:#4299E1,stroke-width:2px,color:#fff,font-weight:bold
+    subgraph MLPipeline
+        Tokenization[Text Tokenization]
+        StopWordRemoval[Stop Word Removal]
+        Lemmatization[Lemmatization]
+        Vectorization[TF-IDF Vectorization]
+        Classifier[MultimodalNB Classifier]
     end
 
-    %% Connections with better styling
-    UI -->|"User Input"| API
-    API -->|"Response"| UI
-    UI --- TT & FB & HIS
-    API --> PP --> ML
-    ML --> API
-    API --> HIST --> HIS
-    PP --> TOK --> STOP --> LEM --> VEC --> SVM
-    SVM -->|"Prediction"| ML
-
-    %% Global styles
-    classDef default color:#fff,font-family:arial,font-size:14px
+    UI --> |User Input| API
+    API --> Preprocessor
+    Preprocessor --> Tokenization
+    Tokenization --> StopWordRemoval
+    StopWordRemoval --> Lemmatization
+    Lemmatization --> Vectorization
+    Vectorization --> Classifier
+    Classifier --> |Prediction| API
+    API --> HistoryManager
+    HistoryManager --> History
 ```
 
 ```mermaid
-%%{init: {'theme': 'dark', 'themeVariables': { 'fontFamily': 'arial', 'fontSize': '16px'}}}%%
-sequenceDiagram
-    participant U as 👤 User
-    participant F as 🖥️ Frontend
-    participant A as 🔌 API
-    participant P as 🔄 Preprocessor
-    participant M as 🤖 ML Model
-    participant H as 📚 History
-
-    style U fill:#4A5568,stroke:#718096,stroke-width:2px,color:#fff,font-weight:bold
-    style F fill:#4A5568,stroke:#718096,stroke-width:2px,color:#fff,font-weight:bold
-    style A fill:#34495E,stroke:#4A6278,stroke-width:2px,color:#fff,font-weight:bold
-    style P fill:#2C5282,stroke:#4299E1,stroke-width:2px,color:#fff,font-weight:bold
-    style M fill:#2C5282,stroke:#4299E1,stroke-width:2px,color:#fff,font-weight:bold
-    style H fill:#34495E,stroke:#4A6278,stroke-width:2px,color:#fff,font-weight:bold
-
-    U->>+F: Enter Message
-    F->>+A: POST /classify
-    A->>+P: Preprocess Text
-    P->>+M: Vectorize & Classify
-    M-->>-P: Prediction & Confidence
-    P-->>-A: Processed Result
-    A->>H: Store in History
-    A-->>-F: JSON Response
-    F-->>-U: Display Result
-    Note over U,H: All communications secured with proper error handling
-```
-
-```mermaid
-%%{init: {'theme': 'dark', 'themeVariables': { 'fontFamily': 'arial', 'fontSize': '16px'}}}%%
+%%{init: {'theme': 'base', 'themeVariables': { 'fontFamily': 'Arial', 'fontSize': '14px'}}}%%
 flowchart LR
-    subgraph Processing["🔄 Text Processing"]
-        direction LR
-        A["📝 Raw Text"] --> B["🔍 Preprocessed"]
-        B --> C["📊 TF-IDF Vector"]
-        C --> D["🎯 Classification"]
-        D --> E["📈 Confidence Score"]
-        style A fill:#4A5568,stroke:#718096,stroke-width:2px,color:#fff,font-weight:bold
-        style B fill:#4A5568,stroke:#718096,stroke-width:2px,color:#fff,font-weight:bold
-        style C fill:#34495E,stroke:#4A6278,stroke-width:2px,color:#fff,font-weight:bold
-        style D fill:#2C5282,stroke:#4299E1,stroke-width:2px,color:#fff,font-weight:bold
-        style E fill:#2C5282,stroke:#4299E1,stroke-width:2px,color:#fff,font-weight:bold
+    subgraph TextProcessing
+        RawText[Raw Text Input]
+        Preprocessed[Preprocessed Text]
+        TFIDFVector[TF-IDF Vector]
+        Classification[Text Classification]
+        ConfidenceScore[Confidence Score]
     end
 
-    subgraph Storage["💾 Data Storage"]
-        direction TB
-        F["📁 Model File"] --> G["🤖 Classifier"]
-        H["📚 Message History"] --> I["📊 Analytics"]
-        style F fill:#1A365D,stroke:#2C5282,stroke-width:2px,color:#fff,font-weight:bold
-        style G fill:#1A365D,stroke:#2C5282,stroke-width:2px,color:#fff,font-weight:bold
-        style H fill:#1A365D,stroke:#2C5282,stroke-width:2px,color:#fff,font-weight:bold
-        style I fill:#1A365D,stroke:#2C5282,stroke-width:2px,color:#fff,font-weight:bold
+    subgraph DataStorage
+        ModelFile[Trained Model File]
+        ClassificationModel[MultimodalNB Classifier]
+        MessageHistory[Message History Database]
+        AnalyticsEngine[Analytics Dashboard]
     end
 
-    %% Global styles
-    classDef default color:#fff,font-family:arial,font-size:14px,font-weight:bold
-    style Processing fill:#2D323E,stroke:#4A5568,stroke-width:2px
-    style Storage fill:#2C3E50,stroke:#34495E,stroke-width:2px
+    RawText --> Preprocessed
+    Preprocessed --> TFIDFVector
+    TFIDFVector --> Classification
+    Classification --> ConfidenceScore
+
+    ModelFile --> ClassificationModel
+    MessageHistory --> AnalyticsEngine
+```
+
+```mermaid
+%%{init: {'theme': 'base', 'themeVariables': { 'fontFamily': 'Arial', 'fontSize': '14px'}}}%%
+sequenceDiagram
+    participant User
+    participant Frontend
+    participant API
+    participant Preprocessor
+    participant MLModel
+    participant HistoryManager
+
+    User->>Frontend: Enter Classification Request
+    Frontend->>API: Send Text for Classification
+    API->>Preprocessor: Preprocess Input Text
+    Preprocessor->>MLModel: Vectorize and Classify
+    MLModel-->>Preprocessor: Return Classification Result
+    Preprocessor-->>API: Processed Classification
+    API->>HistoryManager: Store Classification Event
+    API-->>Frontend: Return Classification Response
+    Frontend-->>User: Display Classification Result
 ```
 
 ## 🚀 Quick Start
