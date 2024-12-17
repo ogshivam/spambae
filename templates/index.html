@@ -5,26 +5,59 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SpamBae - SMS Classifier</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
-    <div class="container">
-        <!-- Sidebar with history -->
-        <div class="sidebar">
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <div class="nav-left">
             <div class="logo-container">
                 <img src="{{ url_for('static', filename='logo.svg') }}" alt="SpamBae Logo" class="logo">
-                <div>
+                <div class="logo-text">
                     <h1 class="app-title">SpamBae</h1>
                     <p class="app-subtitle">SMS Classifier</p>
                 </div>
             </div>
+        </div>
+        <div class="nav-right">
+            <div class="nav-item"><i class="fas fa-user"></i></div>
+            <div class="nav-item"><i class="fas fa-book"></i></div>
+            <div class="nav-item"><i class="fas fa-cog"></i></div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <!-- Sidebar with history -->
+        <div class="sidebar">
+            <div class="tagline">
+                Smart SMS Classification:<br>
+                Stop Spam, Stay Safe
+            </div>
             
+            {% if current_result %}
+            <div class="current-result {{ 'spam' if current_result.is_spam else 'not-spam' }}">
+                <div class="current-text">{{ current_result.text }}</div>
+                <div class="current-meta">
+                    <span class="classification-badge {{ 'spam' if current_result.is_spam else 'not-spam' }}">
+                        {{ '🚫 Spam' if current_result.is_spam else '✅ Ham' }}
+                    </span>
+                    <span class="confidence-value">{{ "%.1f"|format(current_result.confidence) }}% {{ 'Spam' if current_result.is_spam else 'Ham' }}</span>
+                    <div class="timestamp">{{ current_result.timestamp }}</div>
+                </div>
+            </div>
+            {% endif %}
+
             <div class="history-list">
+                <div class="history-header">Previous Messages</div>
                 {% for item in history|reverse %}
                 <div class="history-item {{ 'spam' if item.is_spam else 'not-spam' }}">
                     <div class="history-text">{{ item.text }}</div>
-                    <div class="history-meta" style="font-size: 0.8rem; color: var(--text-secondary)">
-                        {{ 'Spam' if item.is_spam else 'Not Spam' }} • {{ item.confidence|round(1) }}% •
-                        {{ item.timestamp }}
+                    <div class="history-meta">
+                        <span class="classification-badge {{ 'spam' if item.is_spam else 'not-spam' }}">
+                            {{ '🚫 Spam' if item.is_spam else '✅ Ham' }}
+                        </span>
+                        <span class="confidence-value">{{ "%.1f"|format(item.confidence) }}% {{ 'Spam' if item.is_spam else 'Ham' }}</span>
+                        <div class="timestamp">{{ item.timestamp }}</div>
                     </div>
                 </div>
                 {% endfor %}
@@ -33,77 +66,166 @@
 
         <!-- Main content -->
         <div class="main-content">
-            <div class="input-container">
-                <textarea id="message" rows="4" placeholder="Type or paste your message here to check if it's spam..."></textarea>
-                <button id="classify-btn" style="margin-top: 1rem;">Classify Message</button>
-            </div>
+            <form id="message-form">
+                <div class="input-container">
+                    <div class="input-header">
+                        <textarea id="message" rows="4" placeholder="Paste your text here to know if it's scam or ham... 🔍" name="text"></textarea>
+                        <button id="clear-btn" class="clear-button">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    <button id="classify-btn">
+                        <span class="button-text">Classify Message</span>
+                    </button>
+                </div>
+            </form>
 
             <div id="result" class="result-card hidden">
-                <h2 id="classification" style="margin-top: 0;"></h2>
-                <div class="confidence-bar">
-                    <div id="confidence-fill" class="confidence-fill"></div>
+                <div class="result-header">
+                    <span id="classification-emoji"></span>
+                    <h2 id="classification"></h2>
                 </div>
-                <div id="confidence"></div>
+                <div class="confidence-container">
+                    <div class="confidence-header">
+                        <span class="confidence-label">Confidence Level</span>
+                        <span id="confidence-text" class="confidence-percentage"></span>
+                    </div>
+                    <div class="confidence-bar">
+                        <div id="confidence-fill" class="confidence-fill">
+                            <div class="confidence-glow"></div>
+                        </div>
+                    </div>
+                </div>
                 <div class="processed-text">
-                    <strong>Processed Text:</strong>
-                    <div id="processed-text"></div>
+                    <div class="processed-text-label">Processed Text:</div>
+                    <div id="processed-text" class="processed-content"></div>
                 </div>
             </div>
         </div>
     </div>
 
     <script>
-        document.getElementById('classify-btn').addEventListener('click', async () => {
-            const messageText = document.getElementById('message').value.trim();
-            if (!messageText) {
-                alert('Please enter a message to classify');
-                return;
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('message-form');
+            const resultCard = document.getElementById('result');
+            const classification = document.getElementById('classification');
+            const classificationEmoji = document.getElementById('classification-emoji');
+            const confidenceFill = document.getElementById('confidence-fill');
+            const confidenceText = document.getElementById('confidence-text');
+            const processedText = document.getElementById('processed-text');
+            const historyList = document.querySelector('.history-list');
+
+            // Function to update result card
+            function updateResultCard(data, fullText) {
+                resultCard.classList.remove('hidden', 'result-spam', 'result-not-spam');
+                resultCard.classList.add(data.is_spam ? 'result-spam' : 'result-not-spam');
+                
+                classification.textContent = data.is_spam ? 'Spam Detected' : 'Not Spam';
+                classificationEmoji.textContent = data.is_spam ? '🚫' : '✅';
+                
+                const confidenceValue = data.confidence.toFixed(1);
+                confidenceFill.style.width = `${confidenceValue}%`;
+                confidenceFill.style.backgroundColor = data.is_spam ? 'var(--danger-color)' : 'var(--success-color)';
+                confidenceText.textContent = `${confidenceValue}%`;
+                
+                processedText.textContent = data.processed_text || fullText;
             }
 
-            // Show loading state
-            const button = document.getElementById('classify-btn');
-            const originalText = button.textContent;
-            button.textContent = 'Classifying...';
-            button.disabled = true;
+            // Clear button functionality
+            document.getElementById('clear-btn').addEventListener('click', () => {
+                form.reset();
+                resultCard.classList.add('hidden');
+            });
 
-            try {
-                const response = await fetch('/classify', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ text: messageText })
-                });
+            // Function to handle history item click
+            function handleHistoryItemClick(item) {
+                const fullText = item.getAttribute('data-full-text');
+                const isSpam = item.classList.contains('spam');
+                const confidence = parseFloat(item.getAttribute('data-confidence'));
+                const processedText = item.getAttribute('data-processed-text');
 
-                const result = await response.json();
-                
-                // Update the result card
-                const resultDiv = document.getElementById('result');
-                const classificationDiv = document.getElementById('classification');
-                const confidenceDiv = document.getElementById('confidence');
-                const confidenceFill = document.getElementById('confidence-fill');
-                const processedTextDiv = document.getElementById('processed-text');
+                updateResultCard({
+                    is_spam: isSpam,
+                    confidence: confidence,
+                    processed_text: processedText
+                }, fullText);
 
-                resultDiv.style.display = 'block';
-                resultDiv.className = `result-card ${result.is_spam ? 'result-spam' : 'result-not-spam'}`;
-                
-                classificationDiv.textContent = result.is_spam ? 'Spam Detected!' : 'Not Spam';
-                confidenceDiv.textContent = `Confidence: ${result.confidence.toFixed(1)}%`;
-                confidenceFill.style.width = `${result.confidence}%`;
-                processedTextDiv.textContent = result.processed_text;
-
-                // Refresh the page to update history
-                setTimeout(() => {
-                    window.location.reload();
-                }, 2000);
-
-            } catch (error) {
-                console.error('Error:', error);
-                alert('An error occurred while classifying the message');
-            } finally {
-                button.textContent = originalText;
-                button.disabled = false;
+                // Scroll the result card into view
+                resultCard.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
             }
+
+            form.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                const formData = new FormData(form);
+                const text = formData.get('text');
+
+                if (!text.trim()) {
+                    alert('Please enter a message to classify');
+                    return;
+                }
+
+                try {
+                    const response = await fetch('/classify', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ text: text }),
+                    });
+
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+
+                    const result = await response.json();
+                    
+                    // Update result card
+                    updateResultCard(result, text);
+                    
+                    // Add to history list
+                    const historyItem = document.createElement('div');
+                    historyItem.className = `history-item ${result.is_spam ? 'spam' : 'not-spam'}`;
+                    // Store full data as attributes
+                    historyItem.setAttribute('data-full-text', text);
+                    historyItem.setAttribute('data-confidence', result.confidence);
+                    historyItem.setAttribute('data-processed-text', result.processed_text);
+                    
+                    const truncatedText = text.length > 100 ? text.substring(0, 97) + '...' : text;
+                    
+                    historyItem.innerHTML = `
+                        <div class="history-text">${truncatedText}</div>
+                        <div class="history-meta">
+                            <span class="classification-badge ${result.is_spam ? 'spam' : 'not-spam'}">
+                                ${result.is_spam ? '🚫 Spam' : '✅ Ham'}
+                            </span>
+                            <span class="confidence-value">${result.confidence.toFixed(1)}% ${result.is_spam ? 'Spam' : 'Ham'}</span>
+                            <div class="timestamp">${new Date().toLocaleString()}</div>
+                        </div>
+                    `;
+                    
+                    // Add click event listener to the history item
+                    historyItem.addEventListener('click', () => handleHistoryItemClick(historyItem));
+                    
+                    // Insert at the beginning of the history list
+                    if (historyList.children.length > 1) {
+                        historyList.insertBefore(historyItem, historyList.children[1]);
+                    } else {
+                        historyList.appendChild(historyItem);
+                    }
+                    
+                    // Clear input
+                    form.reset();
+                    
+                } catch (error) {
+                    console.error('Error:', error);
+                    alert('An error occurred while classifying the message.');
+                }
+            });
+
+            // Add click handlers to existing history items
+            document.querySelectorAll('.history-item').forEach(item => {
+                item.addEventListener('click', () => handleHistoryItemClick(item));
+            });
         });
     </script>
 </body>
